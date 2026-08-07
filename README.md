@@ -11,6 +11,7 @@ These skills are designed to be used with AI agents (like Grok) to provide speci
 - **backend-api-design** — REST/GraphQL API design, structure, auth, error handling
 - **fullstack-project-structure** — Monorepo & single-repo folder conventions
 - **web-performance-seo** — Core Web Vitals, performance optimization & SEO
+- **3d-website** — Interactive 3D websites with React Three Fiber, Three.js, Spline
 
 ### 2. Software Development
 - **clean-code-practices** — Naming, function design, refactoring, maintainability
@@ -36,6 +37,8 @@ dev-skills-kit/
 ├── modern-frontend-workflow/
 │   └── SKILL.md
 ├── backend-api-design/
+│   └── SKILL.md
+├── 3d-website/
 │   └── SKILL.md
 ├── ...
 └── README.md
