@@ -1,28 +1,34 @@
 ---
 name: 3d-website
-description: Use when building high-end interactive 3D websites, scroll-driven 3D experiences, immersive landing pages, or product showcases with React Three Fiber, Three.js, Spline, or WebGL. Triggers on 3D scenes, scroll animations, 3D models, camera control, performance optimization, and modern immersive web experiences.
+description: Use when building interactive 3D websites, scroll-driven 3D experiences, product showcases, or immersive landing pages with React Three Fiber, Three.js, or similar. Triggers on 3D scenes, camera control, scroll animations, model loading, performance optimization, lighting, and production 3D web experiences.
 ---
 
-# 3D Website Development (World-Class Guide)
+# 3D Website Development
 
-This skill provides production-grade guidance for building modern interactive 3D websites. Focus is on React Three Fiber (R3F) as the primary stack in 2026, with deep coverage of scroll-driven experiences.
+Production-focused guide for building high-quality interactive 3D websites in 2026. Primary stack is React Three Fiber (R3F) + Three.js.
+
+## Core Philosophy
+
+1. **3D must serve the story** — Never add 3D just for visual flex.
+2. **Performance is non-negotiable** — Especially on mobile.
+3. **Progressive enhancement** — The site should still function if WebGL fails.
+4. **Accessibility matters** — Respect `prefers-reduced-motion`.
+5. **Separate concerns** — Keep 3D scene logic and HTML/UI logic clearly separated.
 
 ## Recommended Stack (2026)
 
-**Primary Stack (Recommended for most projects):**
+**Primary:**
 - Next.js (App Router) + TypeScript
 - React Three Fiber + Three.js
-- @react-three/drei (essential helpers)
-- @react-three/postprocessing (bloom, depth of field, etc.)
-- GSAP + ScrollTrigger (best for complex scroll timelines)
-- Tailwind CSS (for HTML/UI overlay)
-- Zustand or Jotai (lightweight state if needed)
+- @react-three/drei (helpers)
+- @react-three/postprocessing
+- GSAP + ScrollTrigger (for complex scroll timelines)
+- Tailwind CSS (UI overlay)
 
-**When to use alternatives:**
-- Spline → Fast prototyping or designer-friendly projects
-- Theatre.js → Complex non-scroll timeline animation
-- Pure Three.js → Maximum performance or non-React projects
-- Babylon.js → Heavy game-like experiences
+**Alternatives:**
+- Spline → Fast prototyping / designer handoff
+- Theatre.js → Complex non-scroll timelines
+- Pure Three.js → Maximum control / non-React projects
 
 ## Project Setup
 
@@ -33,29 +39,19 @@ npm install three @react-three/fiber @react-three/drei @react-three/postprocessi
 npm install -D @types/three
 ```
 
-Recommended folder structure:
-
+**Recommended structure:**
 ```
 src/
 ├── app/
 ├── components/
-│   ├── canvas/           # All R3F components
+│   ├── canvas/          # All R3F / 3D components
 │   │   ├── Scene.tsx
 │   │   ├── Model.tsx
 │   │   └── Effects.tsx
-│   └── ui/               # Normal HTML/React UI
+│   └── ui/              # Normal HTML UI
 ├── hooks/
-├── lib/
-└── types/
+└── lib/
 ```
-
-## Core Principles
-
-1. **3D must serve the story** — Never add 3D just because it looks cool.
-2. **Performance first** — Especially on mobile.
-3. **Progressive enhancement** — Site should still work if WebGL fails.
-4. **Accessibility** — Respect `prefers-reduced-motion`.
-5. **Separation of concerns** — Keep 3D logic and UI logic clearly separated.
 
 ## Basic Canvas Setup
 
@@ -72,9 +68,8 @@ export default function Experience() {
     <div className="fixed inset-0 z-0">
       <Canvas
         camera={{ position: [0, 0, 5], fov: 45 }}
-        dpr={[1, 1.5]}                    // Cap DPR for performance
+        dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
-        shadows
       >
         <Suspense fallback={null}>
           <Scene />
@@ -86,16 +81,13 @@ export default function Experience() {
 }
 ```
 
-## Scroll-Driven 3D Experiences (Most Requested Pattern)
+## Scroll-Driven 3D (Most Common Premium Pattern)
 
-This is the current industry standard for premium 3D websites (Apple-style product pages, agency sites, etc.).
-
-### Recommended Approach: GSAP ScrollTrigger + R3F
+### Preferred: GSAP ScrollTrigger + R3F
 
 ```tsx
 "use client"
 
-import { useFrame } from "@react-three/fiber"
 import { useRef } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
@@ -114,154 +106,118 @@ export default function ScrollScene() {
         trigger: "body",
         start: "top top",
         end: "bottom bottom",
-        scrub: 1,               // Smooth scrubbing
+        scrub: 1,
       }
     })
     .to(group.current.rotation, { y: Math.PI * 2, ease: "none" })
     .to(group.current.position, { z: -3, ease: "power1.inOut" }, 0)
   }, [])
 
-  return (
-    <group ref={group}>
-      {/* Your models / meshes */}
-    </group>
-  )
+  return <group ref={group}>{/* content */}</group>
 }
 ```
 
-### Alternative: drei ScrollControls (Simpler but less flexible)
+### Alternative: drei ScrollControls
 
-```tsx
-import { ScrollControls, Scroll, useScroll } from "@react-three/drei"
+Simpler but less flexible for complex timelines.
 
-function Scene() {
-  return (
-    <ScrollControls pages={3} damping={0.2}>
-      <Scroll>
-        {/* 3D content that moves with scroll */}
-      </Scroll>
-      <Scroll html>
-        {/* HTML content that scrolls normally */}
-      </Scroll>
-    </ScrollControls>
-  )
-}
-```
-
-**When to choose which:**
-- Complex timelines, multiple sections, precise control → **GSAP ScrollTrigger**
-- Simpler scroll-linked movement → **drei ScrollControls**
+**When to choose:**
+- Complex multi-section cinematic → GSAP ScrollTrigger
+- Simple linked movement → drei ScrollControls
 
 ## Model Loading & Optimization
-
-Always optimize models before using them in production.
 
 ```tsx
 import { useGLTF } from "@react-three/drei"
 
 useGLTF.preload("/models/product.glb")
 
-function Product(props) {
+function Model(props) {
   const { scene } = useGLTF("/models/product.glb")
   return <primitive object={scene} {...props} />
 }
 ```
 
-**Optimization checklist:**
-- Use `gltf-transform` or gltf.report
-- Prefer GLB over GLTF
-- Compress textures (KTX2 / Basis Universal)
-- Reduce polygon count aggressively for mobile
-- Use Draco compression when beneficial
+**Optimization rules:**
+- Always optimize models before production (gltf-transform / gltf.report)
+- Prefer GLB
+- Compress textures (KTX2 / Basis)
+- Reduce poly count aggressively for mobile
 - Remove unused materials and animations
+- Use Draco when beneficial
 
-## Performance Rules (Non-Negotiable)
+## Performance Rules (Critical)
 
-| Rule | Target |
-|------|--------|
-| Draw calls | < 80-100 for marketing sites |
+| Area | Target / Rule |
+|------|---------------|
+| Draw calls | < 80–100 for marketing sites |
 | DPR | `[1, 1.5]` or lower on mobile |
-| Shadows | Soft shadows only when necessary. Avoid on mobile |
+| Shadows | Soft only when needed. Avoid on mobile |
 | Lights | Prefer environment maps + few real lights |
-| useFrame | Keep extremely light. Avoid heavy calculations |
-| Textures | Power-of-two, compressed, properly sized |
-| Instancing | Always use for repeated objects |
+| useFrame | Keep extremely light |
+| Textures | Power-of-two + compressed |
+| Repeated objects | Always use instancing |
 
-Use `r3f-perf` during development:
-
-```tsx
-import { Perf } from "r3f-perf"
-// Inside Canvas
-{process.env.NODE_ENV === "development" && <Perf position="top-left" />}
-```
+Use `r3f-perf` in development.
 
 ## Lighting & Atmosphere
 
 Modern premium look usually comes from:
-
-- Good HDRI environment map (`<Environment preset="city" />` or custom)
-- Soft directional light + ambient
-- Subtle postprocessing (bloom, vignette, mild chromatic aberration)
+- Good HDRI / Environment map
+- Soft directional + ambient
+- Subtle postprocessing (bloom, vignette)
 - Avoid overusing effects
 
 ```tsx
 import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing"
 
 <EffectComposer>
-  <Bloom luminanceThreshold={1} intensity={0.4} />
-  <Vignette eskil={false} offset={0.1} darkness={0.7} />
+  <Bloom luminanceThreshold={1} intensity={0.35} />
+  <Vignette offset={0.1} darkness={0.6} />
 </EffectComposer>
 ```
 
-## Accessibility & Reduced Motion
+## Accessibility
 
-Always respect user preference:
+Always check `prefers-reduced-motion` and reduce or disable heavy animation when true. Provide meaningful fallback content when possible.
 
-```tsx
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+## Common Mistakes
 
-// Disable or simplify heavy animations when true
-```
-
-Provide a non-3D fallback version of key content when possible.
-
-## Common Mistakes to Avoid
-
-1. Putting too much logic inside `useFrame`
-2. Loading unoptimized 50MB models
-3. Using high DPR on mobile
-4. Creating new materials/geometries inside render loops
+1. Heavy logic inside `useFrame`
+2. Unoptimized large models
+3. High DPR on mobile
+4. Creating geometries/materials inside loops
 5. Forgetting to dispose resources
 6. Making 3D the main content instead of supporting content
-7. Ignoring touch devices and performance testing
+7. No testing on real mid-range phones
 
 ## Production Checklist
 
 - [ ] Models optimized and compressed
 - [ ] DPR capped
-- [ ] Loading states + Suspense handled
+- [ ] Loading + Suspense handled
 - [ ] Reduced motion support
 - [ ] Tested on mid-range Android
-- [ ] Lighthouse performance checked
-- [ ] Memory leaks tested (leave page open 5+ minutes)
-- [ ] Fallback for WebGL not supported
+- [ ] Memory leaks checked
+- [ ] WebGL fallback considered
+- [ ] Lighthouse / real device performance reviewed
 
 ## Useful Tools
 
-- **gltf.report** / **gltf-transform** → Model optimization
-- **Poly Pizza**, **Sketchfab**, **Quaternius** → Free models
-- **Spline** → Fast 3D design
-- **Leva** → Debug GUI
-- **r3f-perf** → Real-time performance
-- **Theatre.js** → Advanced animation timeline
-- **GSAP ScrollTrigger** → Best scroll control
+- gltf.report / gltf-transform
+- Poly Pizza, Sketchfab, Quaternius
+- Spline
+- Leva (debug)
+- r3f-perf
+- Theatre.js
+- GSAP ScrollTrigger
 
 ## When Generating Code
 
-1. Default to React Three Fiber + TypeScript.
-2. Prefer GSAP ScrollTrigger for serious scroll experiences.
-3. Always include performance considerations.
-4. Separate Canvas from HTML UI.
-5. Add proper loading and error handling.
-6. Suggest model optimization steps.
-7. Include reduced-motion support when animations are heavy.
+1. Default to React Three Fiber + TypeScript
+2. Prefer GSAP ScrollTrigger for serious scroll experiences
+3. Always consider mobile performance
+4. Separate Canvas from HTML UI
+5. Include loading and error handling
+6. Suggest model optimization
+7. Support reduced motion when animations are heavy
